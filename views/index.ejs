@@ -1,23 +1,34 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
+  <head>
+    <%- include("./partials/head") %>
+    <link rel="stylesheet" href="../../public/chat.css" />
+  </head>
 
-<head>
-    <%- include(`./partials/head`) %>
-</head>
+  <body>
+    <div class="container">
+      <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+              <li class="nav-item %>">
+                <a class="nav-link" href="/login2">Login</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </header>
 
-<body>
-    <header>
-        <%- include('./partials/header') %>
-    </header>
-    <div class="jumbotron">
-        <h1 class="display-4">Proyecto final: tercer entrega</h1>
-       
+      <main>
+        <div class="jumbotron">
+          <h1 class="display-4">
+            Desafio Nº19, DIVIDIR EN CAPAZ NUESTRO PROYECTO
+          </h1>
+         
+        </div>
+      </main>
+
+      <footer><%- include('./partials/footer') %></footer>
     </div>
-
-</body>
-
-<footer>
-    <%- include('./partials/footer') %>
-</footer>
-
+  </body>
 </html>

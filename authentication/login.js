@@ -1,16 +1,17 @@
 const passport = require("passport");
 
 const LocalStrategy = require("passport-local").Strategy;
-const UserModel = require("../dataBase/models/user");
+const UserModel = require("../src/db/models/user");
 
-const { isValidPassword } = require("../utils/utils");
-
-const log4js = require("../utils/logs");
-
-const loggerArchiveError = log4js.getLogger("errorArchive");
+const { isValidPassword } = require("../src/utils/utils");
 
 const login = () => {
-
+  /*
+    strategySignup:
+    passport por defecto toma el username & password de req.body.username, req.body.password,
+    en nuestro modelo para ingresar a la DB tenemos también email, entonces, para obtener el
+    email indicamos que queremos recibir todo el req.
+    */
 
   passport.use(
     "login",
@@ -19,7 +20,7 @@ const login = () => {
         //Configuración para obtener todo el req.
         passReqToCallback: true,
       },
-      async (req, username, password, done) => {
+      async (_req, username, password, done) => {
         try {
           const user = await UserModel.findOne({ username });
           if (!user) {
@@ -30,7 +31,6 @@ const login = () => {
           }
           return done(null, user);
         } catch (err) {
-          loggerArchiveError.error(err);
           done(err);
         }
       }

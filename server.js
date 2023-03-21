@@ -98,7 +98,7 @@ app.use((req, _res, next) => {
 app.use(
   session({
     store: MongoStore.create({
-      mongoUrl: process.env.MONGO_URI || "mongodb://localhost:27017/gaston-db",
+      mongoUrl: process.env.MONGO_URI || "mongodb://localhost:27017/backend",
       ttl: 10,
     }),
 

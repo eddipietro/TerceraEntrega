@@ -1,13 +1,13 @@
-const mongoDB = require("../src/db/options/mongoDB");
+const mongoDB = require(`../db/options/mongoDB`);
 
-const messageModel = require("../src/db/models/message");
+const messageModel = require(`../db/models/message`);
 
-const ContenedorMessage = require("../src/db/contenedor/ContenedorMessage");
+const ContenedorMessage = require(`../db/contenedor/ContenedorMessage`);
 
 class MessageDAOMongoDB extends ContenedorMessage {
-  constructor() {
-    super(mongoDB, messageModel);
-  }
-}
+    constructor() {
+        super(mongoDB, messageModel);
+    };
+};
 
 module.exports = MessageDAOMongoDB;

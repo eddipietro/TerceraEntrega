@@ -1,34 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <%- include("./partials/head") %>
-    <link rel="stylesheet" href="../../public/chat.css" />
-  </head>
+<html lang="es">
 
-  <body>
-    <div class="container">
-      <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-              <li class="nav-item %>">
-                <a class="nav-link" href="/login2">Login</a>
-              </li>
-            </ul>
-          </div>
-        </nav>
-      </header>
+<head>
+    <%- include(`./partials/head`) %>
+</head>
 
-      <main>
-        <div class="jumbotron">
-          <h1 class="display-4">
-            Desafio Nº19, DIVIDIR EN CAPAZ NUESTRO PROYECTO
-          </h1>
-         
-        </div>
-      </main>
-
-      <footer><%- include('./partials/footer') %></footer>
+<body>
+    <header>
+        <%- include('./partials/header') %>
+    </header>
+    <div class="jumbotron">
+        <h1 class="display-4">Desafío 21: Testeamos nuestra API REST</h1>
+       
+        <hr class="my-4">
+  
     </div>
-  </body>
+
+</body>
+
+<footer>
+    <%- include('./partials/footer') %>
+</footer>
+
 </html>

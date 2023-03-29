@@ -1,60 +1,116 @@
 const express = require(`express`);
-const { Server: HttpServer } = require(`http`);
-const { Server: IOServer } = require(`socket.io`);
-
-const MongoStore = require(`connect-mongo`);
-
-const passport = require('passport');
-
 const app = express();
-const httpServer = new HttpServer(app);
-const io = new IOServer(httpServer);
+const passport = require('passport');
+const log4js = require('./utils/logs');
+const MongoStore = require(`connect-mongo`);
+const dotenv = require(`dotenv`);
+const parseArgs = require(`minimist`);
+dotenv.config();
 
-app.use(express.static(`./public`));
+app.use("/avatar", express.static("./public/avatar"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const session = require('express-session');
 
-const parseArgs = require(`minimist`);
-
-const log4js = require('./utils/logs');
-
-const dotenv = require(`dotenv`);
-dotenv.config();
-
-const mongoURI =process.env.URL_MONGO
-
-const login = require(`./authentication/login`);
-const signup = require(`./authentication/signup`);
-const serializeUser = require(`./authentication/serializeUser`);
-const deserializeUser = require(`./authentication/deserializeUser`);
-
-app.set(`views`, `./views`);
-app.set(`view engine`, `ejs`);
-
-const socketIoChat = require(`./sockets/socketChat`);
-const socketIoProducts = require(`./sockets/socketProducts`);
+//Middleware: session
+app.use(session({
+    store: MongoStore.create({
+        mongoUrl: process.env.URL_MONGO,
+        ttl: 10,
+    }),
+    secret: process.env.SESSION_SECRET,
+    resave: true,
+    saveUninitialized: true,
+    cookie: { maxAge: 600000 }
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 const args = parseArgs(process.argv.slice(2));
 
+//Views
+app.set(`views`, `./views`);
+app.set(`view engine`, `ejs`);
+
+//Middlewares
 const loggerConsole = log4js.getLogger(`default`);
 const loggerArchiveWarn = log4js.getLogger(`warnArchive`);
 const loggerArchiveError = log4js.getLogger(`errorArchive`);
+
+app.use((req, res, next) => {
+    loggerConsole.info(`
+    Ruta consultada: ${req.originalUrl}
+    Metodo ${req.method}`);
+    next();
+});
+
+//My middleware
+const isLogged = ((req, res, next) => {
+    let msgError = `Para acceder a esta URL debe iniciar sesión`
+    if (req.user) {
+        next();
+    } else {
+        return res.render('viewError', { msgError })
+    }
+});
+
+//Routers import - Producción
+const productosRouter = require(`./routes/productosRouter`);
+const carritoRouter = require(`./routes/carritoRouter`);
+const { loginRouter } = require(`./routes/userRouter`);
+const { signupRouter } = require(`./routes/userRouter`);
+const { logoutRouter } = require(`./routes/userRouter`);
+const { profileRouter } = require(`./routes/userRouter`);
+const generalViewsRouter = require(`./routes/generalViewsRouter`);
+const ordenesRouter = require(`./routes/ordenesRouter`);
+
+//Routers - producción
+app.use(`/`, generalViewsRouter);
+app.use(`/api/productos`, isLogged, productosRouter);
+app.use(`/api/carrito`, isLogged, carritoRouter);
+app.use(`/api/ordenes`, isLogged, ordenesRouter);
+app.use(`/login`, loginRouter);
+app.use(`/signup`, signupRouter);
+app.use('/logout', isLogged, logoutRouter);
+app.use(`/profile`, isLogged, profileRouter);
+
+
+//Routers import - Test
+const productosRouterTest = require(`./routes/productosRouterTest`);
+
+//Router - Test
+app.use(`/test/productos`, productosRouterTest);
+
+
+app.use((req, res) => {
+    loggerConsole.warn(`
+    Estado: 404
+    Ruta consultada: ${req.originalUrl}
+    Metodo ${req.method}`);
+
+    loggerArchiveWarn.warn(`Estado: 404, Ruta consultada: ${req.originalUrl}, Metodo ${req.method}`);
+    const msgError = `Estado: 404, Ruta consultada: ${req.originalUrl}, Metodo ${req.method}`;
+
+    res.render(`viewError`, {msgError});
+
+    //res.status(404).json({ error: -2, descripcion: `ruta ${req.originalUrl} metodo ${req.method} no implementada` });
+});
+/*
+const PORT = process.env.PORT || 8080;
+const server = app.listen(PORT, () => console.log(`Servidor HHTP escuchando puerto ${PORT}`));
+server.on(`error`, err => console.log(`error en el servidor ${err}`));
+*/
 
 // Servidor: modo CLUSTER / FORK
 //nodemon server --> ejecuta en puerto 8080
 //nodemon server -p xxxx --> ejecuta en puerto xxxx
 
-const cluster = require(`cluster`);
-const numCPUs = require(`os`).cpus().length;
-
 const CLUSTER = args.CLUSTER;
 
-// const PORT = args.p || 8080;
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 const runServer = (PORT) => {
-    httpServer.listen(PORT, () => loggerConsole.debug(`Servidor escuchando el puerto ${PORT}`));
+    app.listen(PORT, () => loggerConsole.debug(`Servidor escuchando el puerto ${PORT}`));
 }
 
 if (CLUSTER) {
@@ -75,107 +131,3 @@ if (CLUSTER) {
 } else {
     runServer(PORT);
 }
-
-//Middlewares
-app.use((req, res, next) => {
-    loggerConsole.info(`
-    Ruta consultada: ${req.originalUrl}
-    Metodo ${req.method}`);
-    next();
-});
-
-app.use(session({
-    store: MongoStore.create({
-        mongoUrl: `mongodb://localhost:27017/backend`,
-        ttl: 10,
-    }),
-    secret: '123456',
-    resave: true,
-    saveUninitialized: true,
-    cookie: { maxAge: 600000 }
-}));
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-const isLogged = ((req, res, next) => {
-    if (req.user) {
-        next();
-    } else {
-        return res.render('errorAccesoDenegado')
-    }
-});
-
-//Authentication
-login();
-signup();
-serializeUser();
-deserializeUser();
-
-//Routers import
-const homeRouter = require(`./routers/homeRouter`);
-const formRouter = require(`./routers/formRouter`);
-const loginRouterGet = require(`./routers/loginRouterGet`);
-const loginRouterPost = require(`./routers/loginRouterPost`);
-const chatRouter = require(`./routers/chatRouter`);
-const fakerRouter = require(`./routers/fakerRouter`);
-const infoRouter = require(`./routers/infoRouter`);
-const infoRouterCompression = require(`./routers/infoRouterCompression`);
-const objectRandomRouterGET = require(`./routers/objectRandomGETRouter`);
-const objectRandomRouterPOST = require(`./routers/objectRandomPOSTRouter`);
-const objectRandomRouterOUT = require(`./routers/objectRandomOUTRouter`);
-const login2RouterGet = require(`./routers/login2RouterGet`);
-const signup2Router = require(`./routers/signup2Router`);
-const bienvenidaRouter = require(`./routers/bienvenidaRouter`);
-const errorLogRouter = require(`./routers/errorLogRouter`);
-const errorSignupRouter = require(`./routers/errorSignupRouter`);
-const logoutRouter = require(`./routers/logoutRouter`);
-
-
-//Routers
-app.use(`/`, homeRouter);
-app.use(`/login2`, login2RouterGet);
-app.use(`/form`, isLogged, formRouter);
-app.use(`/login`, isLogged, loginRouterGet);
-app.use(`/login`, isLogged, loginRouterPost); //chat
-app.use(`/chat`, isLogged, chatRouter);
-app.use(`/api/productos-test`, isLogged, fakerRouter);
-app.use(`/info`, isLogged, infoRouter);
-app.use(`/infoCompression`, isLogged, infoRouterCompression);
-app.use(`/api/randoms`, isLogged, objectRandomRouterGET);
-app.use(`/api/randoms`, isLogged, objectRandomRouterPOST);
-app.use(`/objectRandomOUT`, objectRandomRouterOUT);
-app.use(`/signup2`, signup2Router);
-app.use(`/bienvenida`, isLogged, bienvenidaRouter);
-app.use(`/errorLog`, isLogged, errorLogRouter);
-app.use(`/errorSignup`, isLogged, errorSignupRouter);
-app.use(`/logout`, logoutRouter);
-app.post('/login2', passport.authenticate('login', { //indicamos el controlador de passport, llega desde el formulario de login.
-    successRedirect: '/bienvenida', //redirect es con método get, vamos a home.
-    failureRedirect: `/errorLog`, // redirect es con método get, vamos a /login de get.
-    failureFlash: true  // nos permite enviar mensajes.
-}));
-app.post('/signup2', passport.authenticate('signup', {//indicamos el controlador de passport, llega desde el formulario de signup.
-    successRedirect: '/', // redirect es con método get, vamos a home.
-    failureRedirect: `/errorSignup`, // redirect es con método get, vamos a /signup de signup.
-    failureFlash: true // nos permite enviar mensajes.
-}));
-
-//Socket products:
-socketIoChat(io);
-
-//Socket chat:
-socketIoProducts(io);
-
-//Middlewares
-app.use((req, res, next) => {
-    loggerConsole.warn(`
-    Estado: 404
-    Ruta consultada: ${req.originalUrl}
-    Metodo ${req.method}`);
-
-    loggerArchiveWarn.warn(`Estado: 404, Ruta consultada: ${req.originalUrl}, Metodo ${req.method}`);
-
-    res.status(404).json({ error: -2, descripcion: `ruta ${req.originalUrl} metodo ${req.method} no implementada` });
-    next();
-});

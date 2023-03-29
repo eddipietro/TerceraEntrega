@@ -1,12 +1,16 @@
 const passport = require('passport');
 
 const LocalStrategy = require('passport-local').Strategy;
-const UserModel = require(`../db/models/user`);
+const UserModel = require(`../dataBase/models/user`);
 
 const { isValidPassword } = require('../utils/utils');
 
-const login = () => {
+const log4js = require('../utils/logs');
 
+const loggerArchiveError = log4js.getLogger(`errorArchive`);
+
+const login = () => {
+   
 
     passport.use('login', new LocalStrategy({
         //Configuración para obtener todo el req.
@@ -23,6 +27,7 @@ const login = () => {
             return done(null, user);
         }
         catch (err) {
+            loggerArchiveError.error(err);
             done(err);
         }
     }));

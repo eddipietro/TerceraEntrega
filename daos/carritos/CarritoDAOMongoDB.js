@@ -1,15 +1,15 @@
-const mongoDB = require(`../../dataBase/options/mongoDB`);
+const mongoDB = require("../../src/dataBase/options/mongoDB");
 
-const carritoModel = require(`../../dataBase/models/carrito`);
-const productsModel = require(`../../dataBase/models/producto`);
-const userModel = require(`../../dataBase/models/user`);
+const productsModel = require("../../src/dataBase/models/producto");
+const userModel = require("../../src/dataBase/models/user");
+const ordenModel = require("../../src/dataBase/models/ordenes");
 
-const CrudMongoDB = require(`../../dataBase/crudMongoDB/crudCarritos`);
+const CrudMongoDB = require("../../src/dataBase/crudMongoDB/crudOrdenes");
 
-class CarritoDAOMongoDB extends CrudMongoDB {
-    constructor() {
-        super(mongoDB, carritoModel, productsModel, userModel);
-    };
-};
+class OrdenesDAOMongoDB extends CrudMongoDB {
+  constructor() {
+    super(mongoDB, productsModel, userModel, ordenModel);
+  }
+}
 
-module.exports = CarritoDAOMongoDB;
+module.exports = OrdenesDAOMongoDB;

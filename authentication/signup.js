@@ -1,45 +1,41 @@
-const passport = require("passport");
-const sendEmail = require("../src/utils/nodemailerGmail");
+const passport = require('passport');
+const sendEmail = require(`../utils/nodemailerGmail`);
 
-const dotenv = require("dotenv");
+const dotenv = require(`dotenv`);
 dotenv.config();
 
-const LocalStrategy = require("passport-local").Strategy;
-const UserModel = require("../src/dataBase/models/user");
+const LocalStrategy = require('passport-local').Strategy;
+const UserModel = require(`../dataBase/models/user`);
 
-const { createHash } = require("../src/utils/utils");
+const { createHash } = require('../utils/utils');
 
 const signup = () => {
-  passport.use(
-    "signup",
-    new LocalStrategy(
-      {
+    passport.use('signup', new LocalStrategy({
         //Configuración para obtener todo el req.
-        passReqToCallback: true,
-      },
-      async (req, username, password, done) => {
+        passReqToCallback: true
+    }, async (req, username, password, done) => {
         try {
-          const user = await UserModel.findOne({ username });
-          if (user) {
-            return done(null, false);
-          }
+            const user = await UserModel.findOne({ username });
+            if (user) {
+                return done(null, false);
+            }
 
-          const newUser = new UserModel();
-          newUser.username = username;
-          newUser.password = createHash(password); //No se puede volver a conocer la contraseña luego de realizarle el hash
-          newUser.email = req.body.email;
-          newUser.telefono = req.body.tel;
-          newUser.edad = req.body.edad;
-          newUser.direccion = req.body.direccion;
-          newUser.foto = req.file.filename;
-          newUser.carrito = [];
-          newUser.admin = false;
+            const newUser = new UserModel();
+            newUser.username = username;
+            newUser.password = createHash(password); //No se puede volver a conocer la contraseña luego de realizarle el hash
+            newUser.email = req.body.email;
+            newUser.telefono = req.body.tel;
+            newUser.edad = req.body.edad;
+            newUser.direccion = req.body.direccion;
+            newUser.foto = req.file.filename;
+            newUser.carrito = [];
+            newUser.admin = false;
 
-          const mailOptions = {
-            from: process.env.EMAIL,
-            to: `erikadipietro@gmail.com`,
-            subject: `Nuevo registro`,
-            html: `
+            const mailOptions = {
+                from: process.env.EMAIL,
+                to: `erikadipietro7@gmail.com`,
+                subject: `Nuevo registro`,
+                html: `
                     <h3>Nuevo registro de usuario!</h3>
                     <p> Datos:</p>
                     <ul>
@@ -49,21 +45,20 @@ const signup = () => {
                     <li> Edad: ${newUser.edad}</li>
                     <li> Direccion: ${newUser.direccion}</li>
                     </ul>
-                `,
-          };
+                `
+            };
 
-          const userSave = await newUser.save();
+            const userSave = await newUser.save();
 
-          const email = await sendEmail(mailOptions);
+            const email = await sendEmail(mailOptions);
 
-          return done(null, userSave);
-        } catch (err) {
-          loggerArchiveError.error(err);
-          done(err);
+            return done(null, userSave);
         }
-      }
-    )
-  );
-};
+        catch (err) {
+            loggerArchiveError.error(err);
+            done(err);
+        }
+    }));
+}
 
 module.exports = signup;

@@ -1,12 +1,12 @@
-const mongoDB = require("../../src/dataBase/options/mongoDB");
-const productsModel = require("../../src/dataBase/models/producto");
+const mongoDB = require(`../../dataBase/options/mongoDB`);
+const productsModel = require(`../../dataBase/models/producto`);
 
-const CrudMongoDB = require("../../src/dataBase/crudMongoDB/crudProductos");
+const CrudMongoDB = require(`../../dataBase/crudMongoDB/crudProductos`);
 
 class ProductosDAOMongoDB extends CrudMongoDB {
-  constructor() {
-    super(mongoDB, productsModel);
-  }
-}
+    constructor() {
+        super(mongoDB, productsModel);
+    };
+};
 
 module.exports = ProductosDAOMongoDB;

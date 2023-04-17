@@ -7,14 +7,14 @@ const {
   addProductToCart,
   deleteCartById,
   deleteProductById,
-} = require("../../controller/carritoController");
+} = require("../controller/carritoController");
 
 const carritoRouter = Router();
-carritoRouter.get("/:id/productos", getAllProductsByIdCart);
-carritoRouter.get("/", viewCart);
-carritoRouter.post("/", createCart);
-carritoRouter.post("/addProduct", addProductToCart);
-carritoRouter.post("/deleteProduct", deleteProductById);
+carritoRouter.get(`/:id/productos`, getAllProductsByIdCart);
+carritoRouter.get(`/`, viewCart);
+carritoRouter.post(`/`, createCart);
+carritoRouter.post(`/addProduct`, addProductToCart);
+carritoRouter.post(`/deleteProduct`, deleteProductById);
 /*
     NOTA:
         -Se deja la lógica en el programa, en este entregable se decidió generar el carrito en el usuario.
@@ -23,6 +23,8 @@ carritoRouter.post("/deleteProduct", deleteProductById);
 //carritoRouter.post(`/:idCar/:idProd`, addProductToCart);
 //carritoRouter.delete(`/:id/productos/:id_prod`, deleteProductById);
 
-carritoRouter.delete("/:id", deleteCartById);
+carritoRouter.delete(`/:id`, deleteCartById);
+
 
 module.exports = carritoRouter;
+

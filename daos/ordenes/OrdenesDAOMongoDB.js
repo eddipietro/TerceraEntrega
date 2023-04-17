@@ -1,16 +1,15 @@
-const mongoDB = require("../../src/dataBase/options/mongoDB"); 
-//../../dataBase/crudMongoDB/crudOrdenes
+const mongoDB = require(`../../dataBase/options/mongoDB`);
 
-const productsModel = require("../../src/dataBase/models/producto");
-const userModel = require("../../src/dataBase/models/user");
-const ordenModel = require("../../src/dataBase/models/ordenes");
+const productsModel = require(`../../dataBase/models/producto`);
+const userModel = require(`../../dataBase/models/user`);
+const ordenModel = require(`../../dataBase/models/ordenes`);
 
-const CrudMongoDB = require("../../src/dataBase/crudMongoDB/crudOrdenes");
+const CrudMongoDB = require(`../../dataBase/crudMongoDB/crudOrdenes`);
 
 class OrdenesDAOMongoDB extends CrudMongoDB {
-  constructor() {
-    super(mongoDB, productsModel, userModel, ordenModel);
-  }
-}
+    constructor() {
+        super(mongoDB, productsModel, userModel, ordenModel);
+    };
+};
 
 module.exports = OrdenesDAOMongoDB;

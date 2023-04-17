@@ -10,9 +10,9 @@ const sendWhatsApp = async (body, from, to) => {
     try {
         const message = await client.messages.create({
             body: body,
-            from: from || "whatsapp:+14155238886",
-            to: to || "whatsapp:+5491131545981",
-            
+            from: from,
+            to: to
+            //`whatsapp:+59894057052`
         })
         console.log(message);
 

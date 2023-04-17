@@ -6,6 +6,7 @@ const { productInput } = require(`../graphql/inputs/productInput`);
 const { productsQueries } = require(`../graphql/querys/productsQueries`);
 const { productsMutation } = require(`../graphql/mutations/productsMutation`);
 
+
 //Input: lo que necesitamos para la creación.
 //Query: lo relacionado con consulta de lectura. --> get
 // Mutation: lo relacionado con consultas de escritura. --> post, put, delete
@@ -22,6 +23,7 @@ type Mutation {
 `);
 
 module.exports = schema;
+
 
 /* 
 consulta desde http://localhost:8080/graphql

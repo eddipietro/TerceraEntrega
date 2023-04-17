@@ -7,6 +7,7 @@ dotenv.config();
 const accountSid = 'AC2c8c3f7b3b0d1ffd0acc0446b237ccd2'; //ver porque no toma process.env
 const authToken = '87b049b3a0d44835402b4ca053ea692d'; //ver porque no toma process.env
 
+
 const client = twilio(accountSid, authToken);
 
 const sendSMS = async (body, from, to) => {
